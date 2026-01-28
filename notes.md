@@ -12,3 +12,9 @@ Day 4:
 -Learned Networking basics
 -IP, DNS, ports
 -Used ping, curl, ip a 
+Day 5:
+-Learned what processes are
+-Used ps aux and top
+-Understood processes vs services
+-Used systemctl to manage sshd
+-Viewed logs with journalctl
