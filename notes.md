@@ -18,3 +18,9 @@ Day 5:
 -Understood processes vs services
 -Used systemctl to manage sshd
 -Viewed logs with journalctl
+Day 6:
+-Used ping to test connectivity 
+-Understood DNS vs IP
+-Used curl to talk to web servers
+-Checked open ports with ss and netstat
+-Verified SSH listening on port 22
