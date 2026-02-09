@@ -24,3 +24,9 @@ Day 6:
 -Used curl to talk to web servers
 -Checked open ports with ss and netstat
 -Verified SSH listening on port 22
+Day 7:
+-Learned what a firewall does
+-Used ufw to manage firewall rules
+-Allowed SSH(22), HTTP(80), HTTPS(443)
+-Enabled ufw safely
+-Listed and deleted firewall rules
