@@ -30,3 +30,10 @@ Day 7:
 -Allowed SSH(22), HTTP(80), HTTPS(443)
 -Enabled ufw safely
 -Listed and deleted firewall rules
+Day 8:
+-Learned about users and root
+-Used Sudo to run commands as root
+-Understood groups and sudo group
+-Viewed file ownership with ls -l
+-Changed ownership with chown
+-Practiced permission changes with chmod
