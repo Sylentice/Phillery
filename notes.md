@@ -37,3 +37,10 @@ Day 8:
 -Viewed file ownership with ls -l
 -Changed ownership with chown
 -Practiced permission changes with chmod
+Day 9:
+-Checked disk usage with df -h
+-Found large directories with du
+-Explored /var/log
+-Read logs with less
+-Viewed service logs with journalctl
+
