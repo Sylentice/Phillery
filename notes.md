@@ -43,4 +43,9 @@ Day 9:
 -Explored /var/log
 -Read logs with less
 -Viewed service logs with journalctl
-
+Day 10:
+-Learned difference between apt update and apt upgrade
+-Installed and removed packages
+-Used apt search
+-Cleaned unused packages with autoremove
+-Viewed installed packages with dpkg
