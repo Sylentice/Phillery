@@ -49,3 +49,17 @@ Day 10:
 -Used apt search
 -Cleaned unused packages with autoremove
 -Viewed installed packages with dpkg
+Day 11:
+-Created an AWS account
+-Created a proper IAM admin user
+-Launched EC2 Instance
+	-Made sure to make a key pair
+	-Allowed SSH traffic from My IP
+-Connected to Instance VIA the windows Powershell
+	-Learned a shortcut to opening the shell in the file containing the .pem file
+	-Established the fingerprint
+-Ran update and upgrade on EC2 Instance
+-Installed Nginx
+-Opened port 80 in AWS and tested connection in browser
+-Rebooted EC2 instance
+-Stopped Instance
