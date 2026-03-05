@@ -709,3 +709,69 @@ Protected route verified.
 Application stable under PM2.
 
 Backend is now portfolio-level secure API.
+Day 24 – Rate Limiting & Request Logging Prep
+Goal
+
+Protect the API from abuse by adding rate limiting and prepare for production-ready logging.
+
+Steps Completed
+
+Installed rate limiter
+
+npm install express-rate-limit
+
+Configured limiter in app.js
+
+const rateLimit = require('express-rate-limit');
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // max requests per IP
+  message: { error: "Too many requests, please try again later." }
+});
+
+app.use(limiter);
+
+Placed limiter above routes
+
+Ensures all requests are checked before reaching controllers.
+
+Added app.set('trust proxy', 1) because app is behind Nginx.
+
+Tested limiter
+
+Sent 120 requests quickly to /health
+
+Requests 101+ returned:
+
+{"error":"Too many requests, please try again later."}
+
+Request logger middleware
+
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} | ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+Logs timestamp, HTTP method, and route
+
+Useful for debugging and monitoring API traffic
+
+Lessons Learned
+
+Middleware order matters: Limiter must come before routes
+
+Rate limiting protects against brute force & spam
+
+app.set('trust proxy', 1) is essential when behind Nginx
+
+Logging requests early helps track and debug production traffic
+
+Centralized error handling ensures consistent API responses
+
+Status
+
+✅ Rate limiting is working
+✅ Request logging prints timestamps and routes
+✅ App remains online and stable under PM2
+✅ Backend is now production-ready for security & observability improvements
