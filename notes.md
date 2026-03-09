@@ -775,3 +775,131 @@ Status
 ✅ Request logging prints timestamps and routes
 ✅ App remains online and stable under PM2
 ✅ Backend is now production-ready for security & observability improvements
+Day 25 – Structured Logging with Morgan and Winston
+Goal
+
+Replace basic console logging with structured production logging.
+
+Packages Installed
+npm install morgan winston
+
+Morgan logs HTTP requests.
+
+Winston manages structured logs and writes them to files.
+
+Created Logger Utility
+
+File created:
+
+utils/logger.js
+
+Code:
+
+const { createLogger, transports, format } = require("winston");
+
+const logger = createLogger({
+  level: "info",
+  format: format.combine(
+    format.timestamp(),
+    format.json()
+  ),
+  transports: [
+    new transports.File({ filename: "logs/error.log", level: "error" }),
+    new transports.File({ filename: "logs/combined.log" })
+  ]
+});
+
+module.exports = logger;
+Created Logs Directory
+mkdir logs
+
+Log files created automatically:
+
+logs/error.log
+logs/combined.log
+Connected Morgan to Winston
+
+Added to app.js:
+
+const morgan = require("morgan");
+const logger = require("./utils/logger");
+
+app.use(
+  morgan("combined", {
+    stream: {
+      write: (message) => logger.info(message.trim())
+    }
+  })
+);
+
+Morgan now sends request logs to Winston.
+
+Centralized Error Logging
+
+File:
+
+middleware/errorHandler.js
+
+Code:
+
+const logger = require("../utils/logger");
+
+function errorHandler(err, req, res, next) {
+  logger.error(err.stack);
+
+  if (err.code === "23505") {
+    return res.status(409).json({
+      error: "Duplicate value violates unique constraint"
+    });
+  }
+
+  res.status(500).json({
+    error: "Internal server error"
+  });
+}
+
+module.exports = errorHandler;
+
+Added to app.js:
+
+app.use(errorHandler);
+Testing Logs
+
+Test request:
+
+curl https://syl-awstraining.space/users
+
+View logs:
+
+cat logs/combined.log
+
+Check error logs:
+
+cat logs/error.log
+What I Learned
+
+Structured logging improves debugging
+
+Winston writes logs to files for persistence
+
+Morgan captures HTTP request details
+
+Centralized error handling ensures consistent logging
+
+Logs are essential for monitoring production systems
+
+Current Backend Features
+
+HTTPS reverse proxy
+
+PostgreSQL database
+
+JWT authentication
+
+Rate limiting
+
+structured logging
+
+centralized error handling
+
+Express API with routes and controllers
