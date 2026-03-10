@@ -903,3 +903,140 @@ structured logging
 centralized error handling
 
 Express API with routes and controllers
+Day 26 – Containerizing the Node API with Docker
+Goal
+
+Package the Node.js API into a container so it can run consistently on any system.
+
+Containerization ensures the application runs with the same environment everywhere.
+
+Installed Docker
+sudo apt update
+sudo apt install docker.io -y
+
+Start and enable Docker service:
+
+sudo systemctl start docker
+sudo systemctl enable docker
+
+Verify installation:
+
+docker --version
+Allow Non-Root Docker Usage
+sudo usermod -aG docker $USER
+newgrp docker
+
+Test Docker:
+
+docker run hello-world
+Created Dockerfile
+
+File created in project root:
+
+Dockerfile
+
+Contents:
+
+FROM node:20
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
+
+This file defines how Docker builds the container image.
+
+Created .dockerignore
+
+File:
+
+.dockerignore
+
+Contents:
+
+node_modules
+npm-debug.log
+.git
+logs
+.env
+
+This prevents unnecessary files from being included in the container image.
+
+Built Docker Image
+
+From project root:
+
+docker build -t myapp .
+
+Docker performed the following steps:
+
+Pulled Node.js base image
+
+Installed dependencies
+
+Copied project files
+
+Created a runnable container image
+
+Image created:
+
+myapp:latest
+Ran Container
+
+Because port 3000 was already used by the running PM2 app, a different port was used.
+
+docker run -p 3001:3000 myapp
+
+Port mapping:
+
+Host:3001 → Container:3000
+
+Test endpoint:
+
+curl http://localhost:3001/health
+Running Container in Background
+
+Run container in detached mode:
+
+docker run -d -p 3001:3000 myapp
+
+Check running containers:
+
+docker ps
+
+Stop container:
+
+docker stop <container-id>
+Docker Cleanup
+
+Check Docker disk usage:
+
+docker system df
+
+Remove unused containers, images, and cache:
+
+docker system prune
+
+Force cleanup without confirmation:
+
+docker system prune -a -f
+What I Learned
+
+Docker containers package an application and its environment together
+
+Dockerfiles define how container images are built
+
+Containers run isolated from the host system
+
+Port mapping allows external access to container services
+
+Containers can run in foreground or detached mode
+
+Docker cleanup prevents unused images and containers from consuming disk space
