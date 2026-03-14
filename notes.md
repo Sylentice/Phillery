@@ -1040,3 +1040,100 @@ Port mapping allows external access to container services
 Containers can run in foreground or detached mode
 
 Docker cleanup prevents unused images and containers from consuming disk space
+DAY 27 – Multi-Container Architecture with Docker Compose
+
+Goal
+Run the Node.js API and PostgreSQL database using Docker Compose.
+
+Docker Compose allows multiple containers to be defined and started together using a single configuration file.
+
+Installed Docker Compose
+
+sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+
+sudo chmod +x /usr/local/bin/docker-compose
+
+Verify installation
+
+docker-compose --version
+
+
+Created docker-compose.yml
+
+services:
+
+  api:
+    build: .
+    container_name: myapp_api
+    ports:
+      - "3001:3000"
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    container_name: myapp_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: myapp
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+
+
+Explanation
+
+api service
+Builds the Node application using the Dockerfile in the project directory.
+
+ports
+Maps EC2 port 3001 to container port 3000.
+
+depends_on
+Ensures the database container starts before the API container.
+
+db service
+Uses the official PostgreSQL Docker image.
+
+environment
+Sets database credentials and database name.
+
+volumes
+Creates persistent storage so database data survives container restarts.
+
+
+Starting the stack
+
+docker-compose up -d
+
+
+Stopping the stack
+
+docker-compose down
+
+
+Viewing running containers
+
+docker ps
+
+
+Testing the API
+
+curl http://localhost:3001/health
+
+
+Lessons Learned
+
+Docker Compose manages multiple containers in one configuration file.
+
+Containers communicate using internal Docker networking.
+
+Services can reach each other using service names (ex: db:5432).
+
+Docker volumes persist database data outside the container.
+
+Multi-container architecture mirrors real production environments.
