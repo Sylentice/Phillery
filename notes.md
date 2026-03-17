@@ -1137,3 +1137,154 @@ Services can reach each other using service names (ex: db:5432).
 Docker volumes persist database data outside the container.
 
 Multi-container architecture mirrors real production environments.
+DAY 28 – Environment Variables & Secure Configuration with Docker Compose
+
+Goal
+Move sensitive configuration (DB credentials, JWT secret) out of code and into environment variables.
+
+Create .env file
+
+micro .env
+
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=strongpassword123
+POSTGRES_DB=myapp
+DATABASE_URL=postgres://postgres:strongpassword123@db:5432/myapp
+JWT_SECRET=my_super_secret_key
+
+
+Update docker-compose.yml
+
+services:
+
+  api:
+    build: .
+    container_name: myapp_api
+    ports:
+      - "3001:3000"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    container_name: myapp_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+
+
+Restart containers
+
+docker-compose down
+docker-compose up -d
+
+
+Test API
+
+curl http://localhost:3001/health
+
+
+Verify environment variables inside container
+
+docker exec -it myapp_api env
+
+
+Add .env to .gitignore
+
+.env
+
+
+Lessons Learned
+
+Environment variables separate configuration from code.
+
+Docker Compose reads .env and injects variables into containers.
+
+Sensitive data should never be stored in source code.
+
+This approach matches real production configuration practices.DAY 28 – Environment Variables & Secure Configuration with Docker Compose
+
+Goal
+Move sensitive configuration (DB credentials, JWT secret) out of code and into environment variables.
+
+Create .env file
+
+micro .env
+
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=strongpassword123
+POSTGRES_DB=myapp
+DATABASE_URL=postgres://postgres:strongpassword123@db:5432/myapp
+JWT_SECRET=my_super_secret_key
+
+
+Update docker-compose.yml
+
+services:
+
+  api:
+    build: .
+    container_name: myapp_api
+    ports:
+      - "3001:3000"
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    container_name: myapp_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+
+
+Restart containers
+
+docker-compose down
+docker-compose up -d
+
+
+Test API
+
+curl http://localhost:3001/health
+
+
+Verify environment variables inside container
+
+docker exec -it myapp_api env
+
+
+Add .env to .gitignore
+
+.env
+
+
+Lessons Learned
+
+Environment variables separate configuration from code.
+
+Docker Compose reads .env and injects variables into containers.
+
+Sensitive data should never be stored in source code.
+
+This approach matches real production configuration practices.
