@@ -1288,3 +1288,68 @@ Docker Compose reads .env and injects variables into containers.
 Sensitive data should never be stored in source code.
 
 This approach matches real production configuration practices.
+DAY 29 – Container Resilience, Restart Policies & Health Checks
+
+Goal
+Make containers production-ready by adding automatic restarts and health monitoring.
+
+Added restart policy
+
+restart: unless-stopped
+
+This ensures:
+- container restarts if it crashes
+- container restarts after server reboot
+- container does NOT restart if manually stopped
+
+
+Added health check to API
+
+healthcheck:
+  test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+  interval: 30s
+  timeout: 10s
+  retries: 3
+
+
+Rebuilt containers
+
+docker-compose down
+docker-compose up -d --build
+
+
+Verified container status
+
+docker ps
+
+Expected:
+Up (healthy)
+
+
+Tested restart behavior
+
+docker kill does NOT trigger restart (manual stop)
+
+Correct ways to test:
+- restart Docker daemon
+sudo systemctl restart docker
+
+- simulate application crash
+
+
+Verified restart policy
+
+docker inspect --format='{{.HostConfig.RestartPolicy.Name}}' myapp_api
+
+
+Lessons Learned
+
+Restart policies only trigger on crashes or system restarts.
+
+Manual container stops do not trigger automatic restart.
+
+Health checks verify application health, not just container status.
+
+Production systems require self-healing behavior.
+
+Understanding failure scenarios is critical in DevOps.
