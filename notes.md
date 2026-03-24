@@ -1423,3 +1423,27 @@ Containerization allows consistent deployments.
 Environment variables improve security and flexibility.
 
 Being able to explain your system is as important as building it.
+Day 31 - CI/CD Pipeline with GitHub Actions (Debugging & Deployment)
+
+- Set up GitHub Actions workflow for CI/CD
+- Configured SSH deployment to EC2 instance
+- Added GitHub Secrets (EC2_HOST, EC2_USER, EC2_SSH_KEY)
+
+Troubleshooting:
+- Fixed "ssh: no key found" → incorrect SSH key format
+- Fixed "i/o timeout" → opened port 22 in EC2 security group
+- Verified public IP usage for EC2_HOST
+- Ensured correct SSH user (ubuntu)
+
+Testing:
+- Triggered pipeline using git push
+- Used empty commit to re-run pipeline
+- Verified successful connection and deployment
+
+Key Concepts:
+- CI/CD pipeline automation
+- Secure authentication using SSH keys
+- Network access control via security groups
+
+Real-World Insight:
+Most DevOps work is debugging failed pipelines, not just writing them
