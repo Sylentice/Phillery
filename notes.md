@@ -1447,3 +1447,47 @@ Key Concepts:
 
 Real-World Insight:
 Most DevOps work is debugging failed pipelines, not just writing them
+Day 32 - Fail-Safe Deployments & Pipeline Validation
+
+Core Goal:
+Make pipeline fail if deployment is broken
+
+What I Implemented:
+- Added health check to CI/CD pipeline
+- Used curl -f to validate app response
+- Added sleep for container startup timing
+- Pipeline now fails automatically on bad deploy
+
+Pipeline Flow:
+Push → Deploy → Wait → Health Check → Pass/Fail
+
+Key Command:
+curl -f http://localhost:3001/health
+
+Key Concept:
+A deployment is not successful unless verified
+
+Testing:
+- Modified /health route → pipeline passed
+- Broke /health route → pipeline failed (expected)
+- Fixed route → pipeline passed again
+
+Troubleshooting Done:
+- Fixed SSH connection issues (key + timeout)
+- Verified correct EC2 public IP usage
+- Opened port 3001 in AWS security group
+- Confirmed docker container port mapping (3001:3000)
+- Verified logs with docker logs
+- Confirmed container running with docker ps
+- Debugged pipeline failures using GitHub Actions logs
+- Fixed pipeline not triggering due to config issues
+
+Lessons Learned:
+- Security groups act as firewall
+- Pipeline success does not guarantee app success
+- Health checks are required for safe deployments
+- curl -f is used to fail pipelines on bad responses
+- Always verify deployment externally (curl)
+
+Result:
+Pipeline is now production-aware and safe
