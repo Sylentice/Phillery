@@ -1491,3 +1491,51 @@ Lessons Learned:
 
 Result:
 Pipeline is now production-aware and safe
+Day 33 – Monitoring, Logging & Background Processes
+
+Goal:
+Implement basic monitoring for the production API and learn how to run background processes in Linux.
+
+Monitoring Script Created:
+- Created monitor.sh to check API health endpoint
+- Used curl to verify HTTP response
+- Captured HTTP status code instead of just response
+
+Script Logic:
+- Send request to: http://localhost:3001/health
+- If status != 200 → log ALERT
+- If status == 200 → log OK
+- Added timestamps using date command
+
+Script Structure:
+#!/bin/bash
+
+URL="http://localhost:3001/health"
+
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" $URL)
+
+TIMESTAMP=$(date)
+
+if [ "$STATUS" != "200" ]; then
+  echo "$TIMESTAMP | ALERT | API DOWN | Status: $STATUS"
+else
+  echo "$TIMESTAMP | OK | API HEALTHY"
+fi
+
+Logging:
+- Redirected script output to log file:
+  ./monitor.sh >> monitor.log
+
+- Viewed logs using:
+  tail -f /var/www/myapp/monitor.log
+
+- Learned structured logging format:
+  TIMESTAMP | STATUS | MESSAGE
+Key Concepts Learned:
+- Monitoring is essential in production systems
+- Health checks validate application availability
+- Logs provide visibility into system behavior
+
+Real-World Insight:
+Monitoring is the first step toward observability.
+Production systems must be continuously checked, not assumed to be working.
