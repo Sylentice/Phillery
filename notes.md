@@ -1539,3 +1539,211 @@ Key Concepts Learned:
 Real-World Insight:
 Monitoring is the first step toward observability.
 Production systems must be continuously checked, not assumed to be working.
+DAY 34 – Docker Database Connectivity Debugging & Recovery
+
+Overview
+Today focused on debugging a production issue where the API was running but unable to connect to PostgreSQL in a Docker Compose environment.
+
+This revealed a critical gap between application health and dependency connectivity.
+
+Problem Observed
+
+* /health endpoint returned 200 OK
+* /users returned authentication error (expected)
+* /db-test returned Database connection error
+
+Docker logs showed:
+ECONNREFUSED 127.0.0.1:5432
+
+Root Cause
+
+* The application was attempting to connect to PostgreSQL using 127.0.0.1 (localhost)
+* In Docker, localhost refers to the container itself, not other services
+* PostgreSQL runs in a separate container (db service)
+* Even though DATABASE_URL was set correctly, the app was not using it in db.js
+
+Correct connection target:
+db:5432
+
+Fix Applied
+Updated database connection configuration:
+
+const { Pool } = require("pg");
+
+const pool = new Pool({
+connectionString: process.env.DATABASE_URL
+});
+
+module.exports = pool;
+
+Rebuilt and restarted containers:
+docker-compose down
+docker-compose up -d --build
+
+Additional Issue Discovered
+
+* PostgreSQL database "myapp" existed
+* No tables were present (users table missing)
+* Previous schema was not initialized in Docker environment
+
+Schema Fix
+Connected to database:
+docker exec -it myapp_db psql -U postgres -d myapp
+
+Created users table:
+CREATE TABLE users (
+id SERIAL PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+email VARCHAR(100) UNIQUE NOT NULL,
+password TEXT NOT NULL DEFAULT 'temp',
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+Verified:
+\dt
+SELECT * FROM users;
+
+Key Commands Used
+docker logs myapp_api --tail 100
+docker exec -it myapp_db psql -U postgres -c "\l"
+docker exec -it myapp_db psql -U postgres -d myapp -c "\dt"
+docker exec -it myapp_api env | grep DATABASE_URL
+curl http://localhost:3001/db-test
+
+Lessons Learned
+
+* localhost inside a container ≠ other containers
+* Docker services communicate via service names (db)
+* Environment variables must be correctly used in application code
+* A successful container start does NOT guarantee dependency connectivity
+* Health endpoints can be misleading if they do not check dependencies
+* Database schema must be initialized in containerized environments
+* Debugging requires checking logs, environment, and network assumptions
+
+Architecture Insight
+Client → Nginx → Node API → PostgreSQL
+
+Failure occurred between:
+Node API → PostgreSQL
+
+Even though:
+Client → Node API = OK
+
+Outcome
+
+* Fixed database connection issue inside Docker
+* Confirmed correct use of DATABASE_URL
+* Successfully connected API to PostgreSQL container
+* Recreated missing database schema
+* Application is now fully functional again
+
+Reflection
+This exposed a real-world DevOps issue:
+Misconfigured service communication in containerized environments
+
+Key realization:
+A system can be "up" but still broken internally
+DAY 34 – Docker Database Connectivity Debugging & Recovery
+
+Overview
+Today focused on debugging a production issue where the API was running but unable to connect to PostgreSQL in a Docker Compose environment.
+
+This revealed a critical gap between application health and dependency connectivity.
+
+Problem Observed
+
+* /health endpoint returned 200 OK
+* /users returned authentication error (expected)
+* /db-test returned Database connection error
+
+Docker logs showed:
+ECONNREFUSED 127.0.0.1:5432
+
+Root Cause
+
+* The application was attempting to connect to PostgreSQL using 127.0.0.1 (localhost)
+* In Docker, localhost refers to the container itself, not other services
+* PostgreSQL runs in a separate container (db service)
+* Even though DATABASE_URL was set correctly, the app was not using it in db.js
+
+Correct connection target:
+db:5432
+
+Fix Applied
+Updated database connection configuration:
+
+const { Pool } = require("pg");
+
+const pool = new Pool({
+connectionString: process.env.DATABASE_URL
+});
+
+module.exports = pool;
+
+Rebuilt and restarted containers:
+docker-compose down
+docker-compose up -d --build
+
+Additional Issue Discovered
+
+* PostgreSQL database "myapp" existed
+* No tables were present (users table missing)
+* Previous schema was not initialized in Docker environment
+
+Schema Fix
+Connected to database:
+docker exec -it myapp_db psql -U postgres -d myapp
+
+Created users table:
+CREATE TABLE users (
+id SERIAL PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+email VARCHAR(100) UNIQUE NOT NULL,
+password TEXT NOT NULL DEFAULT 'temp',
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+Verified:
+\dt
+SELECT * FROM users;
+
+Key Commands Used
+docker logs myapp_api --tail 100
+docker exec -it myapp_db psql -U postgres -c "\l"
+docker exec -it myapp_db psql -U postgres -d myapp -c "\dt"
+docker exec -it myapp_api env | grep DATABASE_URL
+curl http://localhost:3001/db-test
+
+Lessons Learned
+
+* localhost inside a container ≠ other containers
+* Docker services communicate via service names (db)
+* Environment variables must be correctly used in application code
+* A successful container start does NOT guarantee dependency connectivity
+* Health endpoints can be misleading if they do not check dependencies
+* Database schema must be initialized in containerized environments
+* Debugging requires checking logs, environment, and network assumptions
+
+Architecture Insight
+Client → Nginx → Node API → PostgreSQL
+
+Failure occurred between:
+Node API → PostgreSQL
+
+Even though:
+Client → Node API = OK
+
+Outcome
+
+* Fixed database connection issue inside Docker
+* Confirmed correct use of DATABASE_URL
+* Successfully connected API to PostgreSQL container
+* Recreated missing database schema
+* Application is now fully functional again
+
+Reflection
+This exposed a real-world DevOps issue:
+Misconfigured service communication in containerized environments
+
+Key realization:
+A system can be "up" but still broken internally
